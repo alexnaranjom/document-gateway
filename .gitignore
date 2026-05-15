@@ -1,0 +1,27 @@
+# Virtual environments
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Environment variables (contains secrets)
+.env
+
+# Database files
+db.sqlite3
+
+# IDE settings
+.vscode/
+.idea/
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Node modules (for React frontend later)
+node_modules/
+dist/
+
+#claude
+CLAUDE.md
