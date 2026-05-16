@@ -42,7 +42,7 @@ uvicorn main:app --reload    # http://localhost:8001
 
 | Variable | Default | Description |
 |---|---|---|
-| `SECRET_KEY` | insecure dev key | Django secret key |
+| `SECRET_KEY` | django-insecure-local-dev-key | Django secret key |
 | `DEBUG` | `True` | Debug mode |
 | `DATABASE_URL` | `sqlite:///db.sqlite3` | Database connection string |
 | `ALLOWED_HOSTS` | `localhost,127.0.0.1` | Comma-separated allowed hosts |
