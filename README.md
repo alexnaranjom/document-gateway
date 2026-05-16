@@ -1,29 +1,44 @@
 # GPO Document Gateway
 
-A REST API for managing federal government documents through their full publication lifecycle. Built with Django and Django REST Framework.
+A system for managing federal government documents through their full publication lifecycle. Composed of two services:
+
+- **`legacy-api/`** — Django REST API; the authoritative data store and lifecycle engine
+- **`middleware/`** — FastAPI async proxy that sits in front of the Django API, adding authentication and a clean async interface
 
 ## Tech Stack
 
+**legacy-api**
 - Python 3.13 / Django 6.0 / Django REST Framework 3.17
 - SQLite (dev) — PostgreSQL-ready via `DATABASE_URL`
 - django-filter, django-cors-headers, python-dotenv
 
+**middleware**
+- Python 3.13 / FastAPI / Uvicorn
+- httpx (async HTTP client), Pydantic, python-dotenv
+
 ## Getting Started
+
+### legacy-api (Django)
 
 ```powershell
 # From legacy-api/
 .venv\Scripts\activate
-
 python manage.py migrate
 python manage.py seed_data   # optional: loads sample documents
-python manage.py runserver
+python manage.py runserver   # http://localhost:8000
 ```
 
-The API is available at `http://localhost:8000/api/`.
+### middleware (FastAPI)
+
+```powershell
+# From middleware/
+.venv\Scripts\activate
+uvicorn main:app --reload    # http://localhost:8001
+```
 
 ## Environment Variables
 
-Copy `.env` and adjust as needed. The app reads these from `legacy-api/.env`:
+**`legacy-api/.env`**
 
 | Variable | Default | Description |
 |---|---|---|
@@ -32,9 +47,16 @@ Copy `.env` and adjust as needed. The app reads these from `legacy-api/.env`:
 | `DATABASE_URL` | `sqlite:///db.sqlite3` | Database connection string |
 | `ALLOWED_HOSTS` | `localhost,127.0.0.1` | Comma-separated allowed hosts |
 
+**`middleware/.env`**
+
+| Variable | Default | Description |
+|---|---|---|
+| `LEGACY_API_URL` | `http://127.0.0.1:8000/api` | Django API base URL |
+| `API_KEY` | `dev-api-key-change-in-production` | Middleware auth key |
+
 ## API Endpoints
 
-Base path: `/api/`
+Base path: `/api/` (legacy-api, port 8000)
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -47,7 +69,11 @@ Base path: `/api/`
 | POST | `/api/documents/{id}/transition/` | Transition document status |
 | GET | `/api/documents/stats/` | Aggregate counts by status |
 
-### Status Transition
+### Status Lifecycle
+
+```
+draft → review → approved → published → archived
+```
 
 ```http
 POST /api/documents/{id}/transition/
@@ -60,21 +86,15 @@ Content-Type: application/json
 }
 ```
 
-Valid statuses: `draft` → `review` → `approved` → `published` → `archived`
-
 Every transition is recorded in `StatusHistory` for a full audit trail.
 
 ### Filtering & Search
 
-Documents support filtering (`?status=draft&category=1`), full-text search (`?search=federal+register`), and ordering (`?ordering=-submitted_date`). Authors can be filtered by `?agency=`.
-
-### Pagination
-
-All list endpoints return paginated results (20 per page). Use `?page=2` to navigate.
+Documents support filtering (`?status=draft&category=1`), full-text search (`?search=federal+register`), and ordering (`?ordering=-submitted_date`). Authors can be filtered by `?agency=`. All list endpoints are paginated (20 per page).
 
 ## Django Admin
 
-Available at `/admin/`. Create a superuser first:
+Available at `/admin/` (legacy-api). Create a superuser first:
 
 ```powershell
 python manage.py createsuperuser
