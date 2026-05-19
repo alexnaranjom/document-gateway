@@ -82,7 +82,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
             by_status[choice[0]] = Document.objects.filter(status=choice[0]).count()
         
         return Response({
-            "total": total,
+            "total_documents": total,
             "by_status": by_status,
             "categories": Category.objects.count(),
             "authors": Author.objects.count()

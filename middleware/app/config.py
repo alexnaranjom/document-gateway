@@ -11,4 +11,4 @@ API_KEY = os.getenv("API_KEY", "dev-api-key-change-in-production")
 
 # App settings
 APP_VERSION ="1.0.0"
-APP_TITLE =""
+APP_TITLE = "Document Gateway"

@@ -33,7 +33,7 @@ class DocumentCreate(BaseModel):
     category_id : int
     author_id : int
     content_summary : str = ""
-    page_count = int = 0
+    page_count : int = 0
 
 class DocumentResponse(BaseModel):
     """what the API RETURNS in LIST views (lightweight, flattened names)"""
@@ -54,7 +54,7 @@ class DocumentDetail(BaseModel):
     id: int
     title: str
     document_number: str
-    category = Optional[CategoryResponse] = None  # Full nested object
+    category: Optional[CategoryResponse] = None  # Full nested object
     author: Optional[AuthorResponse] = None
     status: str
     content_summary: str 
@@ -66,6 +66,15 @@ class DocumentDetail(BaseModel):
 
     class Config:
         from_attributes = True
+
+# --- Stats ---
+# Output for the /stats endpoint
+class StatsResponse(BaseModel):
+    total_documents: int
+    by_status: dict
+    categories: int
+    authors: int
+
 
 class StatusTransition(BaseModel):
     """ Input schema for changing a document's status"""
