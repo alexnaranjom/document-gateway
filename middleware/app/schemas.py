@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr
 from datetime import datetime
 from typing import Optional
 
@@ -9,11 +9,10 @@ class CategoryBase(BaseModel):
     description: str = ""
 
 class CategoryResponse(CategoryBase):
+    model_config = ConfigDict(from_attributes=True)  # Pydantic V2 style (replaces class Config)
+
     id:int
     document_count: Optional[int] = 0
-
-    class Config:
-        from_attributes = True # Lets Pydantic read from object attributes, not just dicts
 
 class AuthorBase(BaseModel):
     name : str
@@ -21,10 +20,9 @@ class AuthorBase(BaseModel):
     email: EmailStr  # EmailStr validates that the string is a valid email format
 
 class AuthorResponse(AuthorBase):
-    id:int
+    model_config = ConfigDict(from_attributes=True)
 
-    class Config:
-        from_attributes = True
+    id:int
 
 class DocumentCreate(BaseModel):
     """what the CLIENT SENDS (slim — just IDs, not full objects)"""
@@ -37,6 +35,8 @@ class DocumentCreate(BaseModel):
 
 class DocumentResponse(BaseModel):
     """what the API RETURNS in LIST views (lightweight, flattened names)"""
+    model_config = ConfigDict(from_attributes=True)
+
     id:int
     title: str
     category_name: Optional[str] = None  # Just the ID — client sends 1, not the full category object
@@ -46,26 +46,22 @@ class DocumentResponse(BaseModel):
     submitted_date: Optional[datetime] = None
     published_date: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
-
 class DocumentDetail(BaseModel):
     """what the API RETURNS for a SINGLE document (full nested objects + history)"""
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     title: str
     document_number: str
     category: Optional[CategoryResponse] = None  # Full nested object
     author: Optional[AuthorResponse] = None
     status: str
-    content_summary: str 
+    content_summary: str
     page_count: int
     submitted_date: Optional[datetime] = None
     published_date: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     status_history: list = []
-
-    class Config:
-        from_attributes = True
 
 # --- Stats ---
 # Output for the /stats endpoint
